@@ -1,0 +1,15 @@
+{
+  "name": "snowpack",
+  "version": "1.0.0",
+  "description": "The project is for CODEX.",
+  "main": "index.js",
+  "scripts": {
+    "start": "snowpack dev",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Subhranshu Choudhury",
+  "license": "ISC",
+  "devDependencies": {
+    "snowpack": "^3.8.8"
+  }
+}

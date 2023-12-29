@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three.js Ball Drop</title>
+    <style>
+        body { margin: 0; }
+    </style>
+</head>
+<body>
+    <script type="module">
+        import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r122/build/three.module.js';
+        import { GUI } from 'https://threejsfundamentals.org/threejs/resources/threejs/r122/examples/jsm/libs/dat.gui.module.js';
+
+        let scene, camera, renderer, ball, water;
+        let controls = { speed: -0.05, gravity: 0.005, waterDensity: 1, initialHeight: 5 };
+        let isPlaying = true; // Flag to determine if animation is playing
+
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            // Create a ball
+            const geometry = new THREE.SphereGeometry(1, 32, 32);
+            const material = new THREE.MeshBasicMaterial({ color: 0x3498db });
+            ball = new THREE.Mesh(geometry, material);
+            scene.add(ball);
+
+            // Create water plane
+            const waterGeometry = new THREE.PlaneGeometry(100, 100, 32, 32);
+            const waterMaterial = new THREE.MeshBasicMaterial({ color: 0x0080ff, side: THREE.DoubleSide, transparent: true, opacity: 0.5 });
+            water = new THREE.Mesh(waterGeometry, waterMaterial);
+            water.rotation.x = Math.PI / 2; // Rotate to be horizontal
+            water.position.y = -5; // Position at the bottom of the screen
+            scene.add(water);
+
+            camera.position.z = 5;
+
+            // Set up dat.gui for controls
+            setupGUI();
+
+            // Add play/pause and replay buttons
+            setupButtons();
+
+            animate();
+        }
+
+        function setupGUI() {
+            const gui = new GUI();
+            gui.add(controls, 'speed', -0.1, 0.1).name('Drop Speed');
+            gui.add(controls, 'gravity', 0, 0.01).name('Gravity');
+            gui.add(controls, 'waterDensity', 0.1, 20).name('Water Density');
+            gui.add(controls, 'initialHeight', 0, 10).name('Initial Height');
+        }
+
+        function setupButtons() {
+            const playPauseButton = document.createElement('button');
+            playPauseButton.innerText = 'Play/Pause';
+            playPauseButton.style.position = 'absolute';
+            playPauseButton.style.top = '10px';
+            playPauseButton.style.left = '10px';
+            playPauseButton.addEventListener('click', togglePlayPause);
+            document.body.appendChild(playPauseButton);
+
+            const replayButton = document.createElement('button');
+            replayButton.innerText = 'Replay';
+            replayButton.style.position = 'absolute';
+            replayButton.style.top = '40px';
+            replayButton.style.left = '10px';
+            replayButton.addEventListener('click', replayAnimation);
+            document.body.appendChild(replayButton);
+        }
+
+        function togglePlayPause() {
+            isPlaying = !isPlaying;
+        }
+
+        function replayAnimation() {
+            controls.speed = -0.05;
+            ball.position.y = controls.initialHeight;
+            isPlaying = true;
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (isPlaying) {
+                // Update ball position
+                updateBallPosition();
+
+                // Update water appearance based on density
+                water.material.opacity = controls.waterDensity * 0.1;
+
+                // Adjust ball speed based on water density
+                controls.speed += controls.waterDensity * 0.001;
+
+                // Ensure the ball's speed is always in the downward direction
+                if (ball.position.y > water.position.y) {
+                    controls.speed = Math.abs(controls.speed) * -1;
+                }
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        function updateBallPosition() {
+            // Update ball position based on controls
+            ball.position.y += controls.speed;
+            controls.speed -= controls.gravity;
+
+            // Reset position if ball goes below a certain point
+            if (ball.position.y < -5) {
+                ball.position.y = controls.initialHeight;
+                controls.speed = -0.05; // Reset speed on bounce
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        init();
+    </script>
+</body>
+</html>

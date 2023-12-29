@@ -1,0 +1,30 @@
+body, html {
+    height: 100%;
+    margin: 0;
+}
+
+.container {
+    height: 800px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-items: flex-start;
+    overflow: scroll;
+    background: #000;
+}
+
+.ball {
+    width: 30px;
+    height: 30px;
+    background-color: #3498db;
+    border-radius: 50%;
+    position: relative;
+    margin-bottom: 10px;
+    animation: fall linear infinite;
+}
+
+@keyframes fall {
+    to {
+        transform: translateY(calc(100vh - 40px));
+    }
+}
